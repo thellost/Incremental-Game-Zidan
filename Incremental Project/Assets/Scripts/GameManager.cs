@@ -89,13 +89,17 @@ public class GameManager : MonoBehaviour
     private void Start()
 
     {
-        BuyIsMax = false;
 
+        BuyIsMax = false;
+        setup();
+    }
+
+    private void setup()
+    {
         Buy1.onClick.AddListener(SetBuy1);
         Buymax.onClick.AddListener(SetBuyMax);
         AddAllResources();
     }
-
 
  
 
