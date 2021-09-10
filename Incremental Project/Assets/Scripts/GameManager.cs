@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
 
     public ResourceConfig[] ResourcesConfigs;
 
+    public Sprite[] ResourcesSprites;
+
 
 
     public Transform ResourcesParent;
@@ -47,7 +49,7 @@ public class GameManager : MonoBehaviour
 
 
 
-    private double _totalGold;
+    public double TotalGold;
 
     private static GameManager _instance = null;
 
@@ -113,6 +115,8 @@ public class GameManager : MonoBehaviour
 
         CoinIcon.transform.Rotate(0f, 0f, Time.deltaTime * -100f);
 
+        CheckResourceCost();
+
     }
 
 
@@ -120,6 +124,7 @@ public class GameManager : MonoBehaviour
     private void AddAllResources()
 
     {
+        bool showResources = true;
 
         foreach (ResourceConfig config in ResourcesConfigs)
 
@@ -134,6 +139,42 @@ public class GameManager : MonoBehaviour
             resource.SetConfig(config);
 
             _activeResources.Add(resource);
+
+            obj.gameObject.SetActive(showResources);
+
+
+
+            if (showResources && !resource.IsUnlocked)
+
+            {
+
+                showResources = false;
+
+            }
+
+
+
+        }
+
+    }
+
+    public void ShowNextResource()
+
+    {
+
+        foreach (ResourceController resource in _activeResources)
+
+        {
+
+            if (!resource.gameObject.activeSelf)
+
+            {
+
+                resource.gameObject.SetActive(true);
+
+                break;
+
+            }
 
         }
 
@@ -150,9 +191,10 @@ public class GameManager : MonoBehaviour
         foreach (ResourceController resource in _activeResources)
 
         {
-
-            output += resource.GetOutput();
-
+            if (resource.IsUnlocked)
+            {
+                output += resource.GetOutput();
+            }
         }
         Debug.Log(output);
 
@@ -172,13 +214,13 @@ public class GameManager : MonoBehaviour
 
 
 
-    private void AddGold(double value)
+    public void AddGold(double value)
 
     {
 
-        _totalGold += value;
+        TotalGold += value;
 
-        GoldInfo.text = $"Gold: { _totalGold.ToString("0") }";
+        GoldInfo.text = $"Gold: { TotalGold.ToString("0") }";
 
     }
 
@@ -238,6 +280,37 @@ public class GameManager : MonoBehaviour
 
 
         return tapText;
+
+    }
+
+    private void CheckResourceCost()
+
+    {
+
+        foreach (ResourceController resource in _activeResources)
+
+        {
+
+            bool isBuyable = false;
+
+            if (resource.IsUnlocked)
+
+            {
+
+                isBuyable = TotalGold >= resource.GetUpgradeCost();
+
+            }
+
+            else
+
+            {
+
+                isBuyable = TotalGold >= resource.GetUnlockCost();
+
+            }
+            resource.ResourceImage.sprite = ResourcesSprites[isBuyable ? 1 : 0];
+
+        }
 
     }
 
