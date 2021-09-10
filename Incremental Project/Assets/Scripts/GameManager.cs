@@ -40,12 +40,16 @@ public class GameManager : MonoBehaviour
 
     public TextMeshProUGUI AutoCollectInfo;
 
+    public Button Buymax;
+
+    public Button Buy1;
+
 
 
     private List<TapText> _tapTextPool = new List<TapText>();
     private List<ResourceController> _activeResources = new List<ResourceController>();
-
     private float _collectSecond;
+    [HideInInspector] public bool BuyIsMax;
 
 
 
@@ -85,6 +89,10 @@ public class GameManager : MonoBehaviour
     private void Start()
 
     {
+        BuyIsMax = false;
+
+        Buy1.onClick.AddListener(SetBuy1);
+        Buymax.onClick.AddListener(SetBuyMax);
         AddAllResources();
     }
 
@@ -180,8 +188,39 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private void SetBuy1()
+    {
+        ColorBlock colors = Buy1.colors;
+        colors.normalColor = new Color32(255, 197, 0, 255);
+        colors.highlightedColor = new Color32(255, 197, 0, 255);
+        colors.pressedColor = new Color32(231, 140, 0, 255);
+        Buy1.colors = colors;
 
+        colors = Buymax.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color32(231, 140, 0, 255);
+        colors.pressedColor = Color.white;
+        Buymax.colors = colors;
 
+        BuyIsMax = false;
+    }
+
+    private void SetBuyMax()
+    {
+        ColorBlock colors = Buymax.colors;
+        colors.normalColor = new Color32(255, 197, 0, 255);
+        colors.highlightedColor = new Color32(255, 197, 0, 255);
+        colors.pressedColor = new Color32(231, 140, 0, 255);
+        Buymax.colors = colors;
+
+        colors = Buy1.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color32(231, 140, 0, 255);
+        colors.pressedColor = Color.white;
+        Buy1.colors = colors;
+
+        BuyIsMax = true;
+    }
     private void CollectPerSecond()
 
     {
@@ -233,8 +272,10 @@ public class GameManager : MonoBehaviour
         foreach (ResourceController resource in _activeResources)
 
         {
-
-            output += resource.GetOutput();
+            if (resource.IsUnlocked)
+            {
+                output += resource.GetOutput();
+            }
 
         }
 

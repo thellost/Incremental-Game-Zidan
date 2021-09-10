@@ -39,7 +39,6 @@ public class ResourceController : MonoBehaviour
             if (IsUnlocked)
 
             {
-
                 UpgradeLevel();
 
             }
@@ -59,23 +58,23 @@ public class ResourceController : MonoBehaviour
     public void UpgradeLevel()
 
     {
+        do {
+            double upgradeCost = GetUpgradeCost();
 
-        Debug.Log("Upgraded");
-        double upgradeCost = GetUpgradeCost();
+            if (GameManager.Instance.TotalGold <= upgradeCost)
+            {
 
-        if (GameManager.Instance.TotalGold < upgradeCost)
+                break;
 
-        {
-
-            return;
-
-        }
+            }
 
 
 
-        GameManager.Instance.AddGold(-upgradeCost);
+            GameManager.Instance.AddGold(-upgradeCost);
 
-        _level++;
+            _level++;
+
+        } while (GameManager.Instance.BuyIsMax);
 
 
 
@@ -110,7 +109,7 @@ public class ResourceController : MonoBehaviour
 
         double unlockCost = GetUnlockCost();
 
-        if (GameManager.Instance.TotalGold < unlockCost)
+        if (GameManager.Instance.TotalGold <= unlockCost)
 
         {
 
