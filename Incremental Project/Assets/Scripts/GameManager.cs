@@ -38,6 +38,8 @@ public class GameManager : MonoBehaviour
 
     public TextMeshProUGUI GoldInfo;
 
+    public TextMeshProUGUI GemInfo;
+
     public TextMeshProUGUI AutoCollectInfo;
 
     public Button Buymax;
@@ -49,11 +51,14 @@ public class GameManager : MonoBehaviour
     private List<TapText> _tapTextPool = new List<TapText>();
     private List<ResourceController> _activeResources = new List<ResourceController>();
     private float _collectSecond;
+    private double totalGoldOvertime;
+
     [HideInInspector] public bool BuyIsMax;
 
 
 
     public double TotalGold;
+    public double TotalGems;
 
     private static GameManager _instance = null;
 
@@ -239,9 +244,8 @@ public class GameManager : MonoBehaviour
                 output += resource.GetOutput();
             }
         }
-        Debug.Log(output);
 
-
+        output = output + (output * TotalGems * 0.05);
 
         output *= AutoCollectPercentage;
 
@@ -255,13 +259,42 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public void Reincarnate()
+    {
+        while (totalGoldOvertime >= GetGemCost())
+        {
+            double upgradeCost = GetGemCost();
 
+            totalGoldOvertime = totalGoldOvertime - upgradeCost;
+
+            TotalGems++;
+        }
+
+        GemInfo.text = $"Gems: { TotalGems.ToString("0") }";
+        TotalGold = 0;
+       
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Resource");
+        foreach (GameObject enemy in enemies)
+            GameObject.Destroy(enemy);
+
+        _activeResources.Clear();
+        AddAllResources();
+
+
+    }
+
+    private double GetGemCost()
+    {
+        return 100000 * (TotalGems+1);
+    }
 
     public void AddGold(double value)
 
     {
 
-        TotalGold += value;
+
+        TotalGold = TotalGold + (value + value * (TotalGems * 0.05));
+        totalGoldOvertime += value;
 
         GoldInfo.text = $"Gold: { TotalGold.ToString("0") }";
 

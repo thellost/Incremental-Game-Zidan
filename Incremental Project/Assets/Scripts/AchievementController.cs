@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-using UnityEngine.UI;
+using TMPro;
 
 
 
@@ -44,7 +44,7 @@ public class AchievementController : MonoBehaviour
 
     [SerializeField] private Transform _popUpTransform;
 
-    [SerializeField] private Text _popUpText;
+    [SerializeField] private TextMeshProUGUI _popUpText;
 
     [SerializeField] private float _popUpShowDuration = 3f;
 
