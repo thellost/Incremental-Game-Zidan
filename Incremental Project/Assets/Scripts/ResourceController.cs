@@ -101,6 +101,7 @@ public class ResourceController : MonoBehaviour
 
         SetUnlocked(_config.UnlockCost == 0);
 
+
     }
 
     public void UnlockResource()

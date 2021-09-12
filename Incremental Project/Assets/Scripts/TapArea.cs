@@ -11,7 +11,7 @@ public class TapArea : MonoBehaviour , IPointerDownHandler
     {
         Debug.Log("test tap");
 
-        GameManager.Instance.CollectByTap(eventData.position, transform);
+        GameManager.Instance.CollectByTap (eventData.position, transform);
 
     }
 }
