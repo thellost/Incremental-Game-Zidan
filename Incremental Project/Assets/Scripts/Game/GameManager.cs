@@ -6,8 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 using TMPro;
-
-
+using System;
 
 public class GameManager : MonoBehaviour
 
@@ -57,9 +56,6 @@ public class GameManager : MonoBehaviour
 
 
 
-    public double TotalGold;
-    public double TotalGems;
-
     private static GameManager _instance = null;
 
     public static GameManager Instance
@@ -104,6 +100,8 @@ public class GameManager : MonoBehaviour
         Buy1.onClick.AddListener(SetBuy1);
         Buymax.onClick.AddListener(SetBuyMax);
         AddAllResources();
+        GoldInfo.text = $"Gold: { UserDataManager.Progress.Gold.ToString("0") }";
+        GemInfo.text = $"Gold: { UserDataManager.Progress.Gems.ToString("0") }";
     }
 
  
@@ -134,6 +132,8 @@ public class GameManager : MonoBehaviour
 
         CheckResourceCost();
 
+        UserDataManager.Save();
+
     }
 
 
@@ -142,6 +142,7 @@ public class GameManager : MonoBehaviour
 
     {
         bool showResources = true;
+        int index = 0;
 
         foreach (ResourceConfig config in ResourcesConfigs)
 
@@ -151,11 +152,12 @@ public class GameManager : MonoBehaviour
 
             ResourceController resource = obj.GetComponent<ResourceController>();
 
+            resource.SetConfig(index, config);
+            index++;
 
-
-            resource.SetConfig(config);
 
             _activeResources.Add(resource);
+
 
             obj.gameObject.SetActive(showResources);
 
@@ -168,7 +170,6 @@ public class GameManager : MonoBehaviour
                 showResources = false;
 
             }
-
 
 
         }
@@ -245,7 +246,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        output = output + (output * TotalGems * 0.05);
+        output = output + (output * UserDataManager.Progress.Gems * 0.05);
 
         output *= AutoCollectPercentage;
 
@@ -267,25 +268,33 @@ public class GameManager : MonoBehaviour
 
             totalGoldOvertime = totalGoldOvertime - upgradeCost;
 
-            TotalGems++;
+            UserDataManager.Progress.Gems++;
         }
 
-        GemInfo.text = $"Gems: { TotalGems.ToString("0") }";
-        TotalGold = 0;
+        GemInfo.text = $"Gems: { UserDataManager.Progress.Gems.ToString("0") }";
+        UserDataManager.Progress.Gold = 0;
        
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Resource");
         foreach (GameObject enemy in enemies)
             GameObject.Destroy(enemy);
 
         _activeResources.Clear();
+        resetResourceLevel();
         AddAllResources();
 
 
     }
 
+
+    //bakal reset level resource dengan cara menghapus resource level dan membuat ulang resource di ui
+    private void resetResourceLevel()
+    {
+        UserDataManager.Progress.ResourcesLevels.Clear();
+    }
+
     private double GetGemCost()
     {
-        return 100000 * (TotalGems+1);
+        return 100000 * (UserDataManager.Progress.Gems + 1);
     }
 
     public void AddGold(double value)
@@ -293,10 +302,10 @@ public class GameManager : MonoBehaviour
     {
 
 
-        TotalGold = TotalGold + (value + value * (TotalGems * 0.05));
+        UserDataManager.Progress.Gold = UserDataManager.Progress.Gold + (value + value * (UserDataManager.Progress.Gems * 0.05));
         totalGoldOvertime += value;
 
-        GoldInfo.text = $"Gold: { TotalGold.ToString("0") }";
+        GoldInfo.text = $"Gold: { UserDataManager.Progress.Gold.ToString("0") }";
 
     }
 
@@ -375,7 +384,7 @@ public class GameManager : MonoBehaviour
 
             {
 
-                isBuyable = TotalGold >= resource.GetUpgradeCost();
+                isBuyable = UserDataManager.Progress.Gold >= resource.GetUpgradeCost();
 
             }
 
@@ -383,7 +392,7 @@ public class GameManager : MonoBehaviour
 
             {
 
-                isBuyable = TotalGold >= resource.GetUnlockCost();
+                isBuyable = UserDataManager.Progress.Gold >= resource.GetUnlockCost();
 
             }
             resource.ResourceImage.sprite = ResourcesSprites[isBuyable ? 1 : 0];
