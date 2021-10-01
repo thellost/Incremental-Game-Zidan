@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "625873415573",
+    "project_id": "incremental-game-cloud-save",
+    "storage_bucket": "incremental-game-cloud-save.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:625873415573:android:f94442bc79e2f06c291a9c",
+        "android_client_info": {
+          "package_name": "com.mineversal.incrementalgame"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "625873415573-3karer3evkggao29mvvs5830pe3hbes5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3D1WK4UlDpzBjTBD5lHnHi_IcjjHEbA4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "625873415573-3karer3evkggao29mvvs5830pe3hbes5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

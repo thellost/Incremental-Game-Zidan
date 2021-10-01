@@ -1,10 +1,7 @@
 ﻿
 using System.Collections.Generic;
-
 using UnityEngine;
-
 using UnityEngine.UI;
-
 using TMPro;
 using System;
 
@@ -45,12 +42,18 @@ public class GameManager : MonoBehaviour
 
     public Button Buy1;
 
+    public Button ReincarnationButton;
+
+    public float SaveDelay = 5f;
+
+
 
 
     private List<TapText> _tapTextPool = new List<TapText>();
     private List<ResourceController> _activeResources = new List<ResourceController>();
     private float _collectSecond;
     private double totalGoldOvertime;
+    private float _saveDelayCounter;
 
     [HideInInspector] public bool BuyIsMax;
 
@@ -99,9 +102,10 @@ public class GameManager : MonoBehaviour
     {
         Buy1.onClick.AddListener(SetBuy1);
         Buymax.onClick.AddListener(SetBuyMax);
+        ReincarnationButton.interactable = false;
         AddAllResources();
         GoldInfo.text = $"Gold: { UserDataManager.Progress.Gold.ToString("0") }";
-        GemInfo.text = $"Gold: { UserDataManager.Progress.Gems.ToString("0") }";
+        GemInfo.text = $"Gems: { UserDataManager.Progress.Gems.ToString("0") }";
     }
 
  
@@ -114,14 +118,18 @@ public class GameManager : MonoBehaviour
 
         // Fungsi untuk selalu mengeksekusi CollectPerSecond setiap detik 
 
-        _collectSecond += Time.unscaledDeltaTime;
-
+        
+        float deltaTime = Time.unscaledDeltaTime;
+        _collectSecond += deltaTime;
+        _saveDelayCounter -= deltaTime;
         if (_collectSecond >= 1f)
 
         {
 
             CollectPerSecond();
 
+
+            UserDataManager.Save(true);
             _collectSecond = 0f;
 
         }
@@ -131,13 +139,13 @@ public class GameManager : MonoBehaviour
         CoinIcon.transform.Rotate(0f, 0f, Time.deltaTime * -100f);
 
         CheckResourceCost();
+        CheckReincarnationCost();
 
         UserDataManager.Save();
 
     }
 
-
-
+    
     private void AddAllResources()
 
     {
@@ -284,6 +292,13 @@ public class GameManager : MonoBehaviour
 
 
     }
+    private void CheckReincarnationCost()
+    {
+        if(GetGemCost() < UserDataManager.Progress.Gold)
+        {
+            ReincarnationButton.interactable = true;
+        }
+    }
 
 
     //bakal reset level resource dengan cara menghapus resource level dan membuat ulang resource di ui
@@ -306,7 +321,17 @@ public class GameManager : MonoBehaviour
         totalGoldOvertime += value;
 
         GoldInfo.text = $"Gold: { UserDataManager.Progress.Gold.ToString("0") }";
+        UserDataManager.Save(_saveDelayCounter < 0f);
 
+
+
+        if (_saveDelayCounter < 0f)
+
+        {
+
+            _saveDelayCounter = SaveDelay;
+
+        }
     }
 
     public void CollectByTap(Vector3 tapPosition, Transform parent)
@@ -335,7 +360,6 @@ public class GameManager : MonoBehaviour
 
 
 
-        tapText.Text.text = $"+{ output.ToString("0") }";
 
         tapText.gameObject.SetActive(true);
 
@@ -344,6 +368,9 @@ public class GameManager : MonoBehaviour
 
 
         AddGold(output);
+        output = UserDataManager.Progress.Gold + (output + output * (UserDataManager.Progress.Gems * 0.05));
+
+        tapText.Text.text = $"+{ output.ToString("0") }";
 
     }
 

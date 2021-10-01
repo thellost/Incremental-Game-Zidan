@@ -1,6 +1,9 @@
 ﻿using System;
 using UnityEngine;
-
+using Firebase.Storage;
+using System.Collections;
+using System.Text;
+using System.Threading.Tasks;
 
 
 public static class UserDataManager
@@ -15,7 +18,7 @@ public static class UserDataManager
 
 
 
-    public static void Load()
+    public static void LoadFromLocal()
 
     {
 
@@ -29,7 +32,7 @@ public static class UserDataManager
 
             Progress = new UserProgressData();
 
-            Save();
+            Save(true);
 
         }
 
@@ -46,16 +49,119 @@ public static class UserDataManager
         }
 
     }
-
-
-
-    public static void Save()
+    public static IEnumerator LoadFromCloud(System.Action onComplete)
 
     {
 
+        StorageReference targetStorage = GetTargetCloudStorage();
+
+
+
+        bool isCompleted = false;
+
+        bool isSuccessfull = false;
+
+        const long maxAllowedSize = 1024 * 1024; // Sama dengan 1 MB
+
+        targetStorage.GetBytesAsync(maxAllowedSize).ContinueWith((Task<byte[]> task) =>
+
+        {
+
+            if (!task.IsFaulted)
+
+            {
+
+                string json = Encoding.Default.GetString(task.Result);
+
+                Progress = JsonUtility.FromJson<UserProgressData>(json);
+
+                isSuccessfull = true;
+
+            }
+
+
+
+            isCompleted = true;
+
+        });
+
+
+
+        while (!isCompleted)
+
+        {
+
+            yield return null;
+
+        }
+
+
+
+        // Jika sukses mendownload, maka simpan data hasil download
+
+        if (isSuccessfull)
+
+        {
+
+            Save();
+
+        }
+
+        else
+
+        {
+
+            // Jika tidak ada data di cloud, maka load data dari local
+
+            LoadFromLocal();
+
+        }
+
+
+
+        onComplete?.Invoke();
+
+    }
+
+    private static StorageReference GetTargetCloudStorage()
+
+    {
+
+        // Gunakan Device ID sebagai nama file yang akan disimpan di cloud
+
+        string deviceID = SystemInfo.deviceUniqueIdentifier;
+
+        FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+
+
+
+        return storage.GetReferenceFromUrl($"{storage.RootReference}/{deviceID}");
+
+    }
+
+
+    public static void Save(bool uploadToCloud = false)
+
+    {
         string json = JsonUtility.ToJson(Progress);
 
         PlayerPrefs.SetString(PROGRESS_KEY, json);
+
+
+
+        if (uploadToCloud)
+
+        {
+
+            byte[] data = Encoding.Default.GetBytes(json);
+
+            StorageReference targetStorage = GetTargetCloudStorage();
+
+
+
+            targetStorage.PutBytesAsync(data);
+
+        }
 
     }
 

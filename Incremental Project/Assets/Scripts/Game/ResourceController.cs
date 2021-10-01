@@ -40,7 +40,7 @@ public class ResourceController : MonoBehaviour
 
             UserDataManager.Progress.ResourcesLevels[_index] = value;
 
-            UserDataManager.Save();
+            UserDataManager.Save(true);
 
         }
 
@@ -192,7 +192,7 @@ public class ResourceController : MonoBehaviour
 
                 UserDataManager.Progress.ResourcesLevels.Add(_level);
 
-                UserDataManager.Save();
+                UserDataManager.Save(true);
 
             }
 
