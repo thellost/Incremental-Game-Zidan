@@ -52,7 +52,6 @@ public class GameManager : MonoBehaviour
     private List<TapText> _tapTextPool = new List<TapText>();
     private List<ResourceController> _activeResources = new List<ResourceController>();
     private float _collectSecond;
-    private double totalGoldOvertime;
     private float _saveDelayCounter;
 
     [HideInInspector] public bool BuyIsMax;
@@ -270,11 +269,11 @@ public class GameManager : MonoBehaviour
 
     public void Reincarnate()
     {
-        while (totalGoldOvertime >= GetGemCost())
+        while (UserDataManager.Progress.Gold >= GetGemCost())
         {
             double upgradeCost = GetGemCost();
 
-            totalGoldOvertime = totalGoldOvertime - upgradeCost;
+            UserDataManager.Progress.Gold = UserDataManager.Progress.Gold - upgradeCost;
 
             UserDataManager.Progress.Gems++;
         }
@@ -297,6 +296,8 @@ public class GameManager : MonoBehaviour
         if(GetGemCost() < UserDataManager.Progress.Gold)
         {
             ReincarnationButton.interactable = true;
+        } else {
+            ReincarnationButton.interactable = false;
         }
     }
 
@@ -315,10 +316,15 @@ public class GameManager : MonoBehaviour
     public void AddGold(double value)
 
     {
-
-
-        UserDataManager.Progress.Gold = UserDataManager.Progress.Gold + (value + value * (UserDataManager.Progress.Gems * 0.05));
-        totalGoldOvertime += value;
+        //check apakah value nya positif atau tidak , apabila positif maka masukkan efek dari gems
+        if (value > 0)
+        {
+            UserDataManager.Progress.Gold = UserDataManager.Progress.Gold + (value + value * (UserDataManager.Progress.Gems * 0.05));
+        }
+        else
+        {
+            UserDataManager.Progress.Gold += value;
+        }
 
         GoldInfo.text = $"Gold: { UserDataManager.Progress.Gold.ToString("0") }";
         UserDataManager.Save(_saveDelayCounter < 0f);
@@ -349,27 +355,16 @@ public class GameManager : MonoBehaviour
             }
 
         }
-
-
-
+        //transform text
         TapText tapText = GetOrCreateTapText();
-
         tapText.transform.SetParent(parent, false);
-
         tapText.transform.position = tapPosition;
-
-
-
-
         tapText.gameObject.SetActive(true);
-
         CoinIcon.transform.localScale = Vector3.one * 1.75f;
 
-
-
         AddGold(output);
-        output = UserDataManager.Progress.Gold + (output + output * (UserDataManager.Progress.Gems * 0.05));
-
+        output = output + output * (UserDataManager.Progress.Gems * 0.05);
+        Debug.Log(output);
         tapText.Text.text = $"+{ output.ToString("0") }";
 
     }
