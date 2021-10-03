@@ -58,7 +58,6 @@ Incremental Project/ExportedObj/
 sysinfo.txt
 
 # Builds
-*.apk
 *.aab
 *.unitypackage
 
